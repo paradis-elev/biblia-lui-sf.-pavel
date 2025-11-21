@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IKEDAH - IKEA.com 2025 Style</title>
+
+<style>
+/* -------------------- RESET & GLOBAL -------------------- */
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#F2F2F2;color:#333;}
+:root{
+    --ikea-blue:#0058A3;
+    --ikea-yellow:#F7DA00;
+    --ikea-light-gray:#F2F2F2;
+    --ikea-dark-gray:#333;
+}
+/* -------------------- HEADER & NAV -------------------- */
+header{
+    background:var(--ikea-blue);
+    color:white;
+    padding:15px 40px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    position:sticky;
+    top:0;
+    z-index:100;
+    box-shadow:0 2px 10px rgba(0,0,0,0.3);
+}
+.logo{font-size:2rem;font-weight:900;}
+nav{display:flex;gap:25px;}
+nav a{color:white;text-decoration:none;font-weight:600;cursor:pointer;}
+nav a:hover{text-decoration:underline;}
+/* -------------------- HERO SLIDESHOW -------------------- */
+.hero{
+    position:relative;
+    width:100%;
+    height:400px;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    text-shadow:2px 2px 8px rgba(0,0,0,0.7);
+}
+.hero img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0;transition:opacity 1s;}
+.hero h2{position:relative;font-size:2.8rem;z-index:1;text-align:center;}
+/* -------------------- SEARCH -------------------- */
+.search-bar{
+    margin:20px auto;
+    max-width:900px;
+    padding:10px 15px;
+    display:flex;
+    background:white;
+    border-radius:12px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+.search-bar input{
+    width:100%;
+    border:none;
+    outline:none;
+    font-size:1rem;
+}
+/* -------------------- MAIN LAYOUT -------------------- */
+.main-layout{display:flex;max-width:1500px;margin:20px auto;padding:0 20px;gap:20px;}
+.sidebar{
+    width:240px;
+    background:white;
+    border-radius:12px;
+    padding:15px;
+    height:fit-content;
+    box-shadow:0 2px 8px rgba(0,0,0,0.15);
+}
+.sidebar h3{border-bottom:2px solid #eee;padding-bottom:10px;margin-bottom:10px;}
+.category{padding:12px;border-radius:8px;margin-bottom:6px;cursor:pointer;transition:.2s;font-weight:500;}
+.category:hover{background:var(--ikea-blue);color:white;}
+.category.active{background:var(--ikea-yellow);font-weight:700;}
+.products{flex:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:25px;}
+.product{background:white;padding:15px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.15);transition:.3s;cursor:pointer;position:relative;}
+.product:hover{transform:translateY(-5px);}
+.product img{width:100%;height:190px;border-radius:10px;object-fit:cover;}
+.product h3{margin:10px 0 4px;}
+.price{font-size:1.2rem;font-weight:bold;color:var(--ikea-blue);}
+.member-tag{font-size:.8rem;background:var(--ikea-blue);color:white;padding:2px 6px;border-radius:4px;margin-left:6px;}
+.product button{margin-top:10px;width:100%;background:var(--ikea-yellow);border:none;padding:10px;border-radius:8px;font-weight:700;cursor:pointer;}
+.product button:hover{background:#e6c500;}
+.badge{position:absolute;top:10px;left:10px;background:#D62828;padding:5px 10px;color:white;border-radius:6px;font-size:0.85rem;}
+/* -------------------- CART -------------------- */
+.cart-btn{position:fixed;top:25px;right:25px;background:var(--ikea-yellow);padding:14px 22px;border-radius:12px;font-weight:bold;box-shadow:0 2px 6px rgba(0,0,0,0.3);cursor:pointer;z-index:100;}
+/* -------------------- MODALS -------------------- */
+.modal{position:fixed;inset:0;display:none;justify-content:center;align-items:center;background:rgba(0,0,0,0.6);z-index:200;}
+.modal-content{background:white;padding:25px;width:95%;max-width:600px;border-radius:12px;max-height:80vh;overflow-y:auto;position:relative;}
+.close{position:absolute;top:12px;right:12px;cursor:pointer;font-size:1.4rem;font-weight:bold;}
+.details-img{width:100%;height:240px;object-fit:cover;border-radius:10px;margin-bottom:15px;}
+.cart-item{display:flex;justify-content:space-between;border-bottom:1px solid #ddd;padding:10px 0;font-size:.95rem;}
+.input{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;margin:10px 0;}
+/* -------------------- TOAST -------------------- */
+.toast{position:fixed;bottom:30px;right:30px;background:var(--ikea-blue);color:white;padding:15px 22px;border-radius:8px;display:none;animation:fadein .3s,fadeout .3s 2.5s forwards;}
+@keyframes fadein{from{opacity:0;transform:translateY(20px);}to{opacity:1;}}
+@keyframes fadeout{to{opacity:0;transform:translateY(20px);}}
+
+/* -------------------- RESPONSIVE -------------------- */
+@media(max-width:900px){.main-layout{flex-direction:column;}.sidebar{width:100%;}}
+</style>
+</head>
+<body>
+
+<header>
+<div class="logo">IKEDAH</div>
+<nav>
+<a onclick="openSignIn()">Sign In</a>
+<a onclick="setCategory('furniture')">Furniture</a>
+<a onclick="setCategory('pego')">Pego Sets</a>
+<a onclick="setCategory('deals')">Deals</a>
+<a onclick="setCategory('new')">New Arrivals</a>
+</nav>
+</header>
+
+<div class="hero">
+<img id="hero-img" src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080">
+<h2>Furniture & Pego Collaboration!</h2>
+</div>
+
+<div class="cart-btn" onclick="openCart()">🛒 Cart (<span id="cart-count">0</span>)</div>
+
+<div class="search-bar">
+<input id="search" placeholder="Search products…">
+</div>
+
+<div class="main-layout">
+<div class="sidebar">
+<h3>Categories</h3>
+<div class="category active" onclick="setCategory('furniture')">Furniture</div>
+<div class="category" onclick="setCategory('pego')">Pego Sets</div>
+<div class="category" onclick="setCategory('deals')">Deals</div>
+<div class="category" onclick="setCategory('new')">New Arrivals</div>
+</div>
+
+<div id="grid" class="products"></div>
+</div>
+
+<!-- CART MODAL -->
+<div id="cart-modal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeCart()">&times;</span>
+<h2>Your Cart</h2>
+<div id="cart-items"></div>
+<h3>Total: $<span id="cart-total">0</span></h3>
+<button onclick="checkout()">Checkout</button>
+</div>
+</div>
+
+<!-- SIGN-IN MODAL -->
+<div id="signin-modal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeSignIn()">&times;</span>
+<h2>Sign In</h2>
+<input id="username" class="input" placeholder="Username">
+<input id="password" class="input" type="password" placeholder="Password">
+<button onclick="signIn()">Continue</button>
+</div>
+</div>
+
+<!-- DETAILS MODAL -->
+<div id="details-modal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeDetails()">&times;</span>
+<h2 id="details-name"></h2>
+<img id="details-img" class="details-img">
+<p id="details-desc"></p>
+<h3>Price: $<span id="details-price"></span></h3>
+<button onclick="buyDetails()">Add to Cart</button>
+</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" class="toast"></div>
+
+<script>
+const data={
+furniture:[
+{id:1,name:"Stockholm Sofa",price:699,img:"https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80",desc:"Relaxed modern Scandinavian sofa."},
+{id:2,name:"Malm Bed Frame",price:499,img:"https://images.unsplash.com/photo-1616627971789-ca1e6f09c0fe?q=80",desc:"Classic clean wooden frame."},
+{id:3,name:"Poäng Armchair",price:129,img:"https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80",desc:"IKEA's iconic comfort chair."},
+{id:4,name:"Billy Bookcase",price:159,img:"https://images.unsplash.com/photo-1555041469-a586c61ea9bc?q=80",desc:"The classic white bookcase."},
+{id:5,name:"Kallax Shelf",price:89,img:"https://images.unsplash.com/photo-1598300055278-6f7f3f6e1a92?q=80",desc:"Iconic storage grid."},
+{id:6,name:"Lack Coffee Table",price:49,img:"https://images.unsplash.com/photo-1557683304-673a23048d34?q=80",desc:"Simple and minimal."}
+],
+pego:[
+{id:101,name:"Pego Castle Set",price:59,img:"https://images.unsplash.com/photo-1606813906063-0c0c5f1f2d7c?q=80",desc:"Build a medieval fortress."},
+{id:102,name:"Pego Space Explorer",price:79,img:"https://images.unsplash.com/photo-1590935210645-08a6f87f40eb?q=80",desc:"Journey to the stars."},
+{id:103,name:"Pego Dino World",price:89,img:"https://images.unsplash.com/photo-1615861427361-d64267f6247a?q=80",desc:"Prehistoric adventure!"}
+],
+deals:[
+{id:201,name:"Clearance Chair",price:59,img:"https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80",desc:"Limited stock!",badge:"-30%"}
+],
+new:[
+{id:301,name:"Luxury Sofa XL",price:899,img:"https://images.unsplash.com/photo-1598300055278-6f7f3f6e1a92?q=80",desc:"Premium comfort."}
+]
+};
+
+let category="furniture";
+let user=localStorage.getItem("user")||null;
+let cart=JSON.parse(localStorage.getItem("cart")||"[]");
+let details=null;
+
+function setCategory(c){category=c;document.querySelectorAll(".category").forEach(x=>x.classList.remove("active"));[...document.querySelectorAll(".category")].find(x=>x.textContent.includes(c.charAt(0).toUpperCase())).classList.add("active");render();}
+function render(){const grid=document.getElementById("grid");const search=document.getElementById("search").value.toLowerCase();grid.innerHTML="";data[category].filter(i=>i.name.toLowerCase().includes(search)).forEach(item=>{const price=user?(item.price*0.8).toFixed(2):item.price;grid.innerHTML+=`<div class="product" onclick="openDetails(${item.id})">${item.badge?`<div class="badge">${item.badge}</div>`:""}<img src="${item.img}"><h3>${item.name}</h3><div class="price">$${price}${user?'<span class="member-tag">Member</span>':''}</div><button onclick="event.stopPropagation();add(${item.id})">Add to Cart</button></div>`;});}
+function add(id){const item=find(id);const price=user?(item.price*0.8).toFixed(2):item.price;cart.push({...item,price});localStorage.setItem("cart",JSON.stringify(cart));updateCart();toast("Added to cart!");}
+function updateCart(){document.getElementById("cart-count").innerText=cart.length;}
+function openCart(){document.getElementById("cart-modal").style.display="flex";let total=0;const container=document.getElementById("cart-items");container.innerHTML="";cart.forEach((i,idx)=>{total+=parseFloat(i.price);container.innerHTML+=`<div class="cart-item"><span>${i.name} - $${i.price}</span><button onclick="removeItem(${idx})">Remove</button></div>`});document.getElementById("cart-total").innerText=total.toFixed(2);}
+function removeItem(i){cart.splice(i,1);localStorage.setItem("cart",JSON.stringify(cart));openCart();updateCart();}
+function closeCart(){document.getElementById("cart-modal").style.display="none";}
+function checkout(){if(cart.length===0)return alert("Cart empty!");alert("Thank you for your purchase!");cart=[];localStorage.setItem("cart","[]");updateCart();closeCart();}
+function find(id){for(const c in data){const f=data[c].find(x=>x.id===id);if(f)return f;}}
+function openDetails(id){const i=find(id);details=i;const price=user?(i.price*0.8).toFixed(2):i.price;document.getElementById("details-name").innerText=i.name;document.getElementById("details-img").src=i.img;document.getElementById("details-desc").innerText=i.desc;document.getElementById("details-price").innerText=price;document.getElementById("details-modal").style.display="flex";}
+function closeDetails(){document.getElementById("details-modal").style.display="none";}
+function buyDetails(){add(details.id);closeDetails();}
+function openSignIn(){document.getElementById("signin-modal").style.display="flex";}
+function closeSignIn(){document.getElementById("signin-modal").style.display="none";}
+function signIn(){const username=document.getElementById("username").value.trim();if(!username)return alert("Enter a username!");user=username;localStorage.setItem("user",username);closeSignIn();toast("Welcome! Member prices activated.");render();}
+function toast(msg){const t=document.getElementById("toast");t.innerText=msg;t.style.display="block";setTimeout(()=>t.style.display="none",3000);}
+render();updateCart();
+document.querySelectorAll(".modal").forEach(m=>{m.addEventListener("click",e=>{if(e.target===m)m.style.display="none";});});
+document.getElementById("search").addEventListener("input",render);
+</script>
+
+</body>
+</html>
