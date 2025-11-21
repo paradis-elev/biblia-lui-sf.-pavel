@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ikedah - Furniture & Pego Collaboration</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+body{background:#f5f5f5;color:#333;}
+header{background:#0058a3;color:#ffcc00;padding:20px;text-align:center;position:relative;}
+header h1{font-size:2em;}
+nav{margin-top:10px;}
+nav a{color:#ffcc00;margin:0 10px;text-decoration:none;font-weight:bold;cursor:pointer;}
+nav a:hover{text-decoration:underline;}
+.hero{background:url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1080') center/cover no-repeat;height:350px;display:flex;align-items:center;justify-content:center;color:white;text-shadow:2px 2px 4px rgba(0,0,0,0.7);}
+.hero h2{font-size:2.5em;margin-bottom:0;}
+.tabs{display:flex;justify-content:center;margin:20px 0;}
+.tab{padding:10px 20px;background:#0058a3;color:#ffcc00;margin:0 5px;border-radius:5px;cursor:pointer;transition:0.3s;}
+.tab.active{background:#ffcc00;color:#0058a3;font-weight:bold;}
+.tab:hover{opacity:0.8;}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;max-width:1200px;margin:20px auto;padding:0 20px;}
+.product{background:white;border-radius:10px;overflow:hidden;box-shadow:0 3px 6px rgba(0,0,0,0.1);display:flex;flex-direction:column;cursor:pointer;transition:transform 0.2s;position:relative;}
+.product:hover{transform:scale(1.02);}
+.product img{width:100%;height:200px;object-fit:cover;}
+.product-info{padding:15px;flex:1;}
+.product-info h3{margin-bottom:10px;}
+.product-info p{margin-bottom:10px;font-size:0.9em;color:#555;}
+.product-info span{font-weight:bold;color:#0058a3;}
+.product-info button{background:#ffcc00;border:none;padding:10px 15px;cursor:pointer;font-weight:bold;border-radius:5px;transition:background 0.3s;}
+.product-info button:hover{background:#e6b800;}
+.badge{position:absolute;top:10px;left:10px;background:red;color:white;padding:5px 10px;border-radius:5px;font-size:0.8em;}
+.cart{position:fixed;top:20px;right:20px;background:#ffcc00;color:#0058a3;padding:15px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.2);cursor:pointer;z-index:1000;}
+.modal,.signin-modal,.details-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);justify-content:center;align-items:center;z-index:1000;}
+.modal-content,.signin-content,.details-content{background:white;padding:20px;border-radius:10px;max-width:600px;width:90%;max-height:80%;overflow-y:auto;}
+.modal-content h2,.signin-content h2,.details-content h2{margin-bottom:20px;}
+.modal-content button,.signin-content button{margin-top:10px;padding:10px 15px;background:#0058a3;color:#ffcc00;border:none;cursor:pointer;border-radius:5px;}
+.close{float:right;cursor:pointer;font-weight:bold;}
+.signin-input{width:100%;padding:10px;margin-bottom:10px;border-radius:5px;border:1px solid #ccc;}
+footer{background:#0058a3;color:#ffcc00;text-align:center;padding:20px;margin-top:40px;}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Ikedah</h1>
+<nav>
+<a onclick="openSignIn()">Sign In / Sign Up</a>
+</nav>
+</header>
+
+<section class="hero">
+<h2>Furniture & Pego Collaboration!</h2>
+</section>
+
+<div class="tabs">
+<div class="tab active" onclick="showTab('furniture')">Furniture</div>
+<div class="tab" onclick="showTab('pego')">Pego Sets</div>
+<div class="tab" onclick="showTab('deals')">Deals</div>
+<div class="tab" onclick="showTab('new')">New Arrivals</div>
+</div>
+
+<div class="cart" onclick="openCart()">
+Cart: <span id="cart-count">0</span> items
+</div>
+
+<div id="tab-content"></div>
+
+<!-- Cart Modal -->
+<div class="modal" id="cart-modal">
+<div class="modal-content">
+<span class="close" onclick="closeCart()">&times;</span>
+<h2>Your Cart</h2>
+<div id="cart-items"></div>
+<h3>Total: $<span id="cart-total">0</span></h3>
+<button onclick="checkout()">Checkout</button>
+</div>
+</div>
+
+<!-- Sign In Modal -->
+<div class="signin-modal" id="signin-modal">
+<div class="signin-content">
+<span class="close" onclick="closeSignIn()">&times;</span>
+<h2>Sign In / Sign Up</h2>
+<input class="signin-input" type="text" id="username" placeholder="Enter Username">
+<input class="signin-input" type="password" id="password" placeholder="Enter Password">
+<button onclick="signIn()">Sign In / Sign Up</button>
+</div>
+</div>
+
+<!-- Product Details Modal -->
+<div class="details-modal" id="details-modal">
+<div class="details-content">
+<span class="close" onclick="closeDetails()">&times;</span>
+<h2 id="details-name"></h2>
+<img id="details-img" src="" style="width:100%;height:200px;object-fit:cover;margin-bottom:10px;">
+<p id="details-desc"></p>
+<h3>Price: $<span id="details-price"></span></h3>
+<button onclick="buyDetailsItem()">Buy</button>
+</div>
+</div>
+
+<footer>
+&copy; 2025 Ikedah & Pego. All rights reserved.
+</footer>
+
+<script>
+// === DATA ===
+const furniture = [
+{id:1,name:"Modern Sofa",price:499,img:"https://images.unsplash.com/photo-1616627989425-8d06f9ab8aa7?w=400",desc:"Comfortable and stylish sofa."},
+{id:2,name:"Dining Chair",price:149,img:"https://images.unsplash.com/photo-1600585154490-0c9c3b2c1f38?w=400",desc:"Elegant chair for your dining room."},
+{id:3,name:"Coffee Table",price:199,img:"https://images.unsplash.com/photo-1598300055278-6f7f3f6e1a92?w=400",desc:"Minimalist coffee table."},
+{id:4,name:"Bed Frame",price:399,img:"https://images.unsplash.com/photo-1616627989425-0b9d0b5a1a1a?w=400",desc:"Sturdy bed frame."},
+{id:5,name:"Bookshelf",price:249,img:"https://images.unsplash.com/photo-1600585154372-3c1f0d4a9e2b?w=400",desc:"Spacious bookshelf for all your books."},
+{id:6,name:"Armchair",price:179,img:"https://images.unsplash.com/photo-1600585154458-2c8b0a5e8f3d?w=400",desc:"Cozy armchair for reading and relaxing."},
+{id:7,name:"Wardrobe",price:599,img:"https://images.unsplash.com/photo-1616627989425-3c3d0b5a1a1b?w=400",desc:"Large wardrobe with sliding doors."},
+{id:8,name:"Side Table",price:89,img:"https://images.unsplash.com/photo-1600585154352-4c1a0d4b9f1b?w=400",desc:"Compact side table for any room."},
+{id:9,name:"Desk",price:299,img:"https://images.unsplash.com/photo-1600585154332-5c1b0d4c9e2c?w=400",desc:"Functional desk for work or study."},
+{id:10,name:"Recliner Chair",price:349,img:"https://images.unsplash.com/photo-1616627989425-6d0d0b5a1a1c?w=400",desc:"Relaxing recliner chair."},
+{id:11,name:"TV Stand",price:229,img:"https://images.unsplash.com/photo-1600585154300-6c1f0d4d9f1c?w=400",desc:"Stylish TV stand with storage."},
+{id:12,name:"Dining Table",price:499,img:"https://images.unsplash.com/photo-1600585154280-7c1b0d4e9e2c?w=400",desc:"Large dining table for family meals."},
+{id:13,name:"Nightstand",price:99,img:"https://images.unsplash.com/photo-1600585154260-8c1c0d4f9f2c?w=400",desc:"Simple nightstand for bedroom."},
+{id:14,name:"Outdoor Chair",price:129,img:"https://images.unsplash.com/photo-1600585154240-9c1d0d4g9f2c?w=400",desc:"Perfect chair for your patio."},
+{id:15,name:"Bookshelf Ladder",price:179,img:"https://images.unsplash.com/photo-1600585154220-0c1e0d4h9f2c?w=400",desc:"Ladder bookshelf combo."}
+];
+
+const pegoSets = [
+{id:101,name:"Pego Castle Set",price:59,img:"https://images.unsplash.com/photo-1590935210645-08a6f87f40?w=400",desc:"Build your own castle!"},
+{id:102,name:"Pego Space Adventure",price:49,img:"https://images.unsplash.com/photo-1606813906063-0c0c5f1f2?w=400",desc:"Explore the galaxy!"},
+{id:103,name:"Pego Robot Factory",price:39,img:"https://images.unsplash.com/photo-1599303450625-08a6f87f41?w=400",desc:"Create robots with ease!"},
+{id:104,name:"Pego Pirate Ship",price:69,img:"https://images.unsplash.com/photo-1599303450625-08a6f87f42?w=400",desc:"Sail the seas!"},
+{id:105,name:"Pego Mini Village",price:29,img:"https://images.unsplash.com/photo-1599303450625-08a6f87f43?w=400",desc:"Build a small town."},
+{id:106,name:"Pego Jungle Adventure",price:79,img:"https://images.unsplash.com/photo-1599303450625-08a6f87f44?w=400",desc:"Explore the jungle with your sets!"},
+{id:107,name:"Pego Dino Land",price:89,img:"https://images.unsplash.com/photo-1599303450625-08a6f87f45?w=400",desc:"Create a dinosaur world!"},
+{id:108,name:"Pego City Builder",price:99,img:"https://images.unsplash.com/photo-1599303450625-08a6f87f46?w=400",desc:"Build a full city!"}
+];
+
+const deals = [
+{id:201,name:"Clearance Chair",price:89,img:"https://images.unsplash.com/photo-1600585154490-0c9c3b2c1f38?w=400",desc:"Limited stock!", badge:"-20%"}
+];
+
+const newArrivals = [
+{id:301,name:"Luxury Sofa",price:699,img:"https://images.unsplash.com/photo-1616627989425-1a2b3c4d5e?w=400",desc:"New arrival!"}
+];
+
+// === STATE ===
+let cart = [];
+let currentUser = null;
+let currentDetailsItem = null;
+
+// === FUNCTIONS ===
+function showTab(tab){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelector(`.tab[onclick="showTab('${tab}')"]`).classList.add('active');
+    renderTabContent(tab);
+}
+
+function renderTabContent(tab){
+    const container = document.getElementById('tab-content');
+    container.innerHTML = "";
+    let items = [];
+    switch(tab){
+        case 'furniture': items = furniture; break;
+        case 'pego': items = pegoSets; break;
+        case 'deals': items = deals; break;
+        case 'new': items = newArrivals; break;
+    }
+    const grid = document.createElement('section');
+    grid.className = 'products';
+    items.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'product';
+        div.innerHTML = `
+            <img src="${item.img}" alt="${item.name}">
+            <div class="product-info">
+                <h3>${item.name}</h3>
+                <p>${item.desc}</p>
+                <span>$${currentUser ? (item.price*0.8).toFixed(2) : item.price}</span><br><br>
+                <button onclick="addToCart(event,${item.id},'${tab}')">Buy</button>
+            </div>`;
+        if(item.badge){
+            const badge = document.createElement('div');
+            badge.className='badge';
+            badge.innerText = item.badge;
+            div.appendChild(badge);
+        }
+        div.querySelector("img").onclick = () => showDetails(item.id, tab);
+        grid.appendChild(div);
+    });
+    container.appendChild(grid);
+}
+
+function addToCart(event, id, tab){
+    event.stopPropagation();
+    let item;
+    switch(tab){
+        case 'furniture': item = furniture.find(f=>f.id===id); break;
+        case 'pego': item = pegoSets.find(f=>f.id===id); break;
+        case 'deals': item = deals.find(f=>f.id===id); break;
+        case 'new': item = newArrivals.find(f=>f.id===id); break;
+    }
+    const price = currentUser ? (item.price*0.8).toFixed(2) : item.price;
+    cart.push({...item, price});
+    updateCartCount();
+    alert(`${item.name} added to cart!`);
+}
+
+function updateCartCount(){
+    document.getElementById("cart-count").innerText = cart.length;
+}
+
+function openCart(){
+    const modal = document.getElementById("cart-modal");
+    modal.style.display = "flex";
+    const cartItems = document.getElementById("cart-items");
+    cartItems.innerHTML = "";
+    let total = 0;
+    cart.forEach((item, index) => {
+        total += parseFloat(item.price);
+        const div = document.createElement("div");
+        div.innerHTML = `${item.name} - $${item.price} <button onclick="removeFromCart(${index})">Remove</button>`;
+        cartItems.appendChild(div);
+    });
+    document.getElementById("cart-total").innerText = total.toFixed(2);
+}
+
+function closeCart(){document.getElementById("cart-modal").style.display="none";}
+function removeFromCart(index){cart.splice(index,1); openCart(); updateCartCount();}
+function checkout(){if(cart.length===0){alert("Cart is empty!"); return;} alert("Thank you for your purchase!"); cart=[]; updateCartCount(); closeCart();}
+
+function openSignIn(){document.getElementById("signin-modal").style.display="flex";}
+function closeSignIn(){document.getElementById("signin-modal").style.display="none";}
+function signIn(){
+    const username = document.getElementById("username").value;
+    if(!username){alert("Enter a username!"); return;}
+    currentUser = username;
+    alert(`Welcome ${username}! You get up to 20% discount!`);
+    closeSignIn();
+    renderTabContent(document.querySelector('.tab.active').getAttribute('onclick').match(/'(.+)'/)[1]);
+}
+
+function showDetails(id, tab){
+    let item;
+    switch(tab){
+        case 'furniture': item = furniture.find(f=>f.id===id); break;
+        case 'pego': item = pegoSets.find(f=>f.id===id); break;
+        case 'deals': item = deals.find(f=>f.id===id); break;
+        case 'new': item = newArrivals.find(f=>f.id===id); break;
+    }
+    currentDetailsItem = {...item, tab};
+    document.getElementById("details-name").innerText = item.name;
+    document.getElementById("details-img").src = item.img;
+    document.getElementById("details-desc").innerText = item.desc;
+    document.getElementById("details-price").innerText = currentUser ? (item.price*0.8).toFixed(2) : item.price;
+    document.getElementById("details-modal").style.display = "flex";
+}
+
+function closeDetails(){document.getElementById("details-modal").style.display="none";}
+function buyDetailsItem(){
+    const item = currentDetailsItem;
+    const price = currentUser ? (item.price*0.8).toFixed(2) : item.price;
+    cart.push({...item, price});
+    updateCartCount();
+    alert(`${item.name} added to cart!`);
+    closeDetails();
+}
+
+// === INIT ===
+renderTabContent('furniture');
+</script>
+
+</body>
+</html>
